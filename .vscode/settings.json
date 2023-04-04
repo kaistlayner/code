@@ -1,0 +1,9 @@
+{
+  "files.associations": {
+    "iostream": "cpp",
+    "ostream": "cpp",
+    "ios": "cpp",
+    "istream": "cpp"
+  },
+  "editor.formatOnSave": true
+}
