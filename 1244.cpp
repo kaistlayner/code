@@ -6,30 +6,31 @@
 
 using namespace std;
 
+map<string, bool[11]> visited;
+int ans;
 
-void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* done, map<string, bool[11]> *visited)
+void get_answer(string cards, int chance, string ideal)
 {
-    char buffer[7];
-    
-    if (chance == 0 || *done){
+    visited[cards][chance] = true;
+
+    if (chance < 1){
+        if (ans < stoi(cards)){
+            ans = stoi(cards);
+        }
         return;
     }
 
-    if((*visited)[cards][chance]){
-        return;
-    }
-    (*visited)[cards][chance] = true;
+    int len = cards.size();
 
-    if (strcmp(cards, ideal) == 0){
+    if (cards.compare(ideal) == 0){
         if(chance % 2 == 0){
-            *done = true;
-            strcpy(ans, ideal);
-            return;
+            ans = stoi(ideal);
         }
         else if(len > 1){
-            strcpy(ans, ideal);
-            ans[len - 1] = ideal[len - 2];
-            ans[len - 2] = ideal[len - 1];
+            cards = ideal;
+            cards[len - 1] = ideal[len - 2];
+            cards[len - 2] = ideal[len - 1];
+            ans = stoi(cards);
         }
         return;
     }
@@ -38,18 +39,13 @@ void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* 
     {
         for (int j = i + 1; j < len; j++)
         {
-            strcpy(buffer, cards);
+            string buffer = cards;
             buffer[i] = cards[j];
             buffer[j] = cards[i];
 
-            if (chance == 1)
+            if(!visited[buffer][chance - 1])
             {
-                if (stoi(buffer) > stoi(ans))
-                    strcpy(ans, buffer);
-            }
-            else
-            {
-                get_answer(buffer, chance - 1, len, ans, ideal, done, visited);
+                get_answer(buffer, chance - 1, ideal);
             }
         }
     }
@@ -65,24 +61,24 @@ int main(int argc, char **argv)
 
     for (test_case = 1; test_case <= T; ++test_case)
     {
-        char cards[7], ideal[7] = {0}, ans[7];
-        int chance, len = 0;
-        bool done = false;
+        string cards, ideal;
+        int chance;
         cin >> cards >> chance;
-        strcpy(ans, cards);
 
+        int len = cards.size();
+        ans = 0;
+        visited.clear();
 
         int arr[7];
-        for (; cards[len]; len++){
-            arr[len] = cards[len] - '0';
+        for (int i = 0; i < len; i++){
+            arr[i] = cards[i] - '0';
         }
         sort(arr, arr+len, greater<int>());
         for (int i = 0; i < len; i++){
             ideal[i] = (char)('0' + arr[i]);
         }
 
-        map<string,bool[11]> visited;
-        get_answer(cards, chance, len, ans, ideal, &done, &visited);
+        get_answer(cards, chance, ideal);
         cout << '#' << test_case << ' ' << ans << endl;
     }
     return 0;

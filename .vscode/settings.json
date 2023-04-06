@@ -8,7 +8,8 @@
     "map": "cpp",
     "xstddef": "cpp",
     "xstring": "cpp",
-    "xutility": "cpp"
+    "xutility": "cpp",
+    "string": "cpp"
   },
   "editor.formatOnSave": true
 }
