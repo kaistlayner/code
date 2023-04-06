@@ -5,7 +5,10 @@
     "ios": "cpp",
     "istream": "cpp",
     "xtr1common": "cpp",
-    "map": "cpp"
+    "map": "cpp",
+    "xstddef": "cpp",
+    "xstring": "cpp",
+    "xutility": "cpp"
   },
   "editor.formatOnSave": true
 }

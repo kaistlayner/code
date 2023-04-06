@@ -1,31 +1,11 @@
 #include <iostream>
 #include <string>
+#include <string.h>
 #include <algorithm>
 #include <map>
 
 using namespace std;
 
-
-
-void copy(char *dst, char *src)
-{
-    int i;
-    for (i = 0; src[i]; i++)
-    {
-        dst[i] = src[i];
-    }
-    dst[i] = '\0';
-}
-
-bool is_string_same(char* a, char* b, int len){
-    for (int i = 0; i < len; i++){
-        if(a[i] != b[i]){
-            return false;
-        }
-    }
-
-    return true;
-}
 
 void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* done, map<string, bool[11]> *visited)
 {
@@ -40,16 +20,14 @@ void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* 
     }
     (*visited)[cards][chance] = true;
 
-    // cout << "check: " << chance << " from " << cards << " current ans " << ans << endl;
-
-    if (is_string_same(cards, ideal, len)){
+    if (strcmp(cards, ideal) == 0){
         if(chance % 2 == 0){
             *done = true;
-            copy(ans, ideal);
+            strcpy(ans, ideal);
             return;
         }
         else if(len > 1){
-            copy(ans, ideal);
+            strcpy(ans, ideal);
             ans[len - 1] = ideal[len - 2];
             ans[len - 2] = ideal[len - 1];
         }
@@ -60,14 +38,14 @@ void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* 
     {
         for (int j = i + 1; j < len; j++)
         {
-            copy(buffer, cards);
+            strcpy(buffer, cards);
             buffer[i] = cards[j];
             buffer[j] = cards[i];
 
             if (chance == 1)
             {
                 if (stoi(buffer) > stoi(ans))
-                    copy(ans, buffer);
+                    strcpy(ans, buffer);
             }
             else
             {
@@ -87,19 +65,20 @@ int main(int argc, char **argv)
 
     for (test_case = 1; test_case <= T; ++test_case)
     {
-        char cards[7], ideal[7], ans[7];
+        char cards[7], ideal[7] = {0}, ans[7];
         int chance, len = 0;
         bool done = false;
         cin >> cards >> chance;
-        copy(ans, cards);
+        strcpy(ans, cards);
+
 
         int arr[7];
         for (; cards[len]; len++){
             arr[len] = cards[len] - '0';
         }
-        sort(arr, arr+len);
+        sort(arr, arr+len, greater<int>());
         for (int i = 0; i < len; i++){
-            ideal[i] = (char)arr[i];
+            ideal[i] = (char)('0' + arr[i]);
         }
 
         map<string,bool[11]> visited;
