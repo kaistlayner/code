@@ -1,8 +1,11 @@
 #include <iostream>
 #include <string>
 #include <algorithm>
+#include <map>
 
 using namespace std;
+
+
 
 void copy(char *dst, char *src)
 {
@@ -24,13 +27,20 @@ bool is_string_same(char* a, char* b, int len){
     return true;
 }
 
-void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* done)
+void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* done, map<string, bool[11]> *visited)
 {
     char buffer[7];
-    // cout << "check: " << chance << " from " << cards << " current ans " << ans << endl;
+    
     if (chance == 0 || *done){
         return;
     }
+
+    if((*visited)[cards][chance]){
+        return;
+    }
+    (*visited)[cards][chance] = true;
+
+    // cout << "check: " << chance << " from " << cards << " current ans " << ans << endl;
 
     if (is_string_same(cards, ideal, len)){
         if(chance % 2 == 0){
@@ -39,8 +49,9 @@ void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* 
             return;
         }
         else if(len > 1){
-            ans[len - 1] = cards[len - 2];
-            ans[len - 2] = cards[len - 1];
+            copy(ans, ideal);
+            ans[len - 1] = ideal[len - 2];
+            ans[len - 2] = ideal[len - 1];
         }
         return;
     }
@@ -60,7 +71,7 @@ void get_answer(char* cards, int chance, int len, char* ans, char* ideal, bool* 
             }
             else
             {
-                get_answer(buffer, chance - 1, len, ans, ideal, done);
+                get_answer(buffer, chance - 1, len, ans, ideal, done, visited);
             }
         }
     }
@@ -91,7 +102,8 @@ int main(int argc, char **argv)
             ideal[i] = (char)arr[i];
         }
 
-        get_answer(cards, chance, len, ans, ideal, &done);
+        map<string,bool[11]> visited;
+        get_answer(cards, chance, len, ans, ideal, &done, &visited);
         cout << '#' << test_case << ' ' << ans << endl;
     }
     return 0;

@@ -4,7 +4,8 @@
     "ostream": "cpp",
     "ios": "cpp",
     "istream": "cpp",
-    "xtr1common": "cpp"
+    "xtr1common": "cpp",
+    "map": "cpp"
   },
   "editor.formatOnSave": true
 }
