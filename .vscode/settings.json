@@ -17,7 +17,9 @@
     "deque": "cpp",
     "vector": "cpp",
     "xlocinfo": "cpp",
-    "xtree": "cpp"
+    "xtree": "cpp",
+    "initializer_list": "cpp",
+    "type_traits": "cpp"
   },
   "editor.formatOnSave": true
 }
