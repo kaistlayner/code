@@ -1,18 +1,15 @@
-#include<iostream>
+#include <iostream>
 
 using namespace std;
 
-int main(int argc, char** argv)
-{
-	int test_case;
-	int T;
+int main() {
+  int N;
+  // freopen("output.txt", "w", stdout);
 
-	//freopen("input.txt", "r", stdin);
-	cin>>T;
+  cin >> N;
 
-	for(test_case = 1; test_case <= T; ++test_case)
-	{
+  for (int i = 1; i <= N; ++i) {
+  }
 
-	}
-	return 0;
+  return 0;
 }
