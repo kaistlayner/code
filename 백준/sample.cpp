@@ -1,6 +1,6 @@
 #include <iostream>
 
-#define DEBUG false
+#define DEBUG true
 
 using namespace std;
 
