@@ -5,10 +5,15 @@
 using namespace std;
 
 int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
+
   if (DEBUG) {
     freopen("output.txt", "w", stdout);
     freopen("input.txt", "r", stdin);
   }
+
   int N;
 
   cin >> N;
