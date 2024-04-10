@@ -172,8 +172,7 @@ void move_santa(){
         int distance = dx * dx + dy * dy;
 
         if(distance < min){
-          ans.first = elem.first;
-          ans.second = elem.second;
+          ans = elem;
           min = distance;
         }
       }
