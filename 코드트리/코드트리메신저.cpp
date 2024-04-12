@@ -4,10 +4,25 @@
 using namespace std;
 
 #define MAX_N 100001
+#define MAX_D 22
+
 int n, q;
+int a[MAX_N], p[MAX_N], val[MAX_N];
+bool notice[MAX_N];
+int nx[MAX_N][MAX_D];
 
 // 초기 설정 값을 받아옵니다.
 void init() {
+    // 부모 채팅과 채팅의 권한 정보를 입력받습니다.
+    for(int i = 1; i <= n; i++) {
+        cin >> p[i];
+    }
+    for(int i = 1; i <= n; i++) {
+        cin >> a[i];
+        // 채팅의 권한이 20을 초과하는 경우 20으로 제한합니다.
+        if(a[i] > 20) a[i] = 20;
+    }
+    
     // TODO
 }
 
