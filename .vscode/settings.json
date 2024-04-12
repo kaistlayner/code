@@ -74,7 +74,13 @@
     "typeinfo": "cpp",
     "unordered_map": "cpp",
     "variant": "cpp",
-    "__verbose_abort": "cpp"
+    "__verbose_abort": "cpp",
+    "iterator": "cpp",
+    "xfacet": "cpp",
+    "xiosbase": "cpp",
+    "xlocale": "cpp",
+    "xlocnum": "cpp",
+    "xmemory": "cpp"
   },
   "editor.formatOnSave": true
 }
