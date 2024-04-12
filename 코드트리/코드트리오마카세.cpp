@@ -1,69 +1,67 @@
 #include <iostream>
 #include <vector>
-#include <deque>
+#include <map>
 
 #define DEBUG true
 
 using namespace std;
 
-int L, Q, people_cnt, food_cnt;
-deque<deque<string> > belt;
-vector<string> customer;
-vector<int> customer_cnt;
+struct info{
+  int pos, time, needs;
+  vector<int> foods;
+};
 
-void print_belt(){
-  cout << '\n';
-  for(int i = 0; i < L; i++){
-    cout << i << ": [" << customer[i] << "] " << customer_cnt[i];
-    cout << "\t\t\tfood: ";
-    for(auto iter : belt[i]){
-      cout << iter << ' ';
-    }
-    cout << '\n';
-  }
-  cout << '\n';
+map<string, info> people;
+
+int L, Q, people_cnt, food_cnt;
+
+bool check_range(int pos, int time, int target){
+  if(target > pos) target -= L;
+
+  if(DEBUG) cout << pos << ' ' << time << ' ' << target << ": " << (target >= pos - time) << '\n';
+
+  // pos ~ pos - time
+  return target >= pos - time;
 }
 
-void check_belt_at(int pos){
-  deque<string> belt_tile = belt[pos];
+void eat_food(int cur_time){
+  for(auto iter = people.begin(); iter != people.end();){
+    info infomation = iter->second;
 
-  for(auto iter = belt_tile.begin(); iter != belt_tile.end();){
-    if((*iter).compare(customer[pos]) == 0){
-      customer_cnt[pos]--;
-      food_cnt--;
-      iter = belt_tile.erase(iter);
-      
-      if(!customer_cnt[pos]){
+    if(infomation.pos != -1){
+      vector<int> foods = infomation.foods;
+      if(DEBUG) cout << iter->first << '\n';
+
+      for(auto iter2 = foods.begin(); iter2 != foods.end();){
+        if(DEBUG) cout << "Food: " <<*iter2 << '\n';
+        if(check_range(infomation.pos, cur_time - infomation.time, *iter2) == true){
+          iter2 = foods.erase(iter2);
+          food_cnt--;
+          infomation.needs--;
+        }else{
+          iter2++;
+        }
+        if(DEBUG) cout << '\n';
+      }
+
+      if(!infomation.needs){
         people_cnt--;
-        customer[pos] = "";
+        iter = people.erase(iter);
+      }else{
+        infomation.foods = foods;
+        int tmp = (infomation.pos - (cur_time - infomation.time)) % L;
+        if(tmp < 0) tmp += L;
+        infomation.pos = tmp;
+        infomation.time = cur_time;
+        if(DEBUG) cout << "pos: " << tmp << " time: " << cur_time << '\n';
+        iter->second = infomation;
+        iter++;
       }
     }else{
       iter++;
     }
   }
-
-  belt[pos] = belt_tile;
-};
-
-void check_belt(){
-  for(int i = 0; i < L; i++){
-    check_belt_at(i);
-  }
-  if(DEBUG){
-    cout << "check" << '\n';
-    print_belt();
-  }
-};
-
-void rotate_belt(){
-  deque<string> front = belt.back();
-  belt.pop_back();
-  belt.push_front(front);
-  if(DEBUG){
-    cout << "rotate" << '\n';
-    print_belt();
-  }
-};
+}
 
 int main() {
   ios::sync_with_stdio(false);
@@ -75,49 +73,49 @@ int main() {
     freopen("input.txt", "r", stdin);
   }
 
+  people_cnt = 0, food_cnt = 0;
   cin >> L >> Q;
-  // for(int i = 0; i < L; i++){
-  //   deque<string> belt_tile;
-  //   belt.push_back(belt_tile);
-  // }
 
-  customer.assign(L, "");
-  customer_cnt.assign(L, 0);
-  people_cnt = 0;
-  food_cnt = 0;
-
-  int type, t, pos, n, tick = 0;
+  int type, t, x, n, pos;
   string name;
 
   for (int i = 1; i <= Q; ++i) {
     cin >> type >> t;
     if(DEBUG) cout << "input: " << type << ' ' << t << '\n';
 
-    int gap = (t - tick) % L;
-    
-    while(gap--){
-      // rotate_belt();
-      // check_belt();
-    }
-
     if(type == 100){
-      cin >> pos >> name;
-      belt[pos].push_back(name);
+      cin >> x >> name;
+      pos = (x - t) % L;
+      while(pos < 0) pos += L;
       food_cnt++;
-      check_belt_at(pos);
-      if(DEBUG) print_belt();
+      
+      if(people.find(name) == people.end()){
+        info sth;
+        sth.pos = -1;
+        people.insert({name, sth});
+      }
+
+      (people.find(name)->second).foods.push_back(pos);
+      if(DEBUG) cout << "inserted: " << pos << '\n';
     }else if(type == 200){
-      cin >> pos >> name >> n;
-      customer[pos] = name;
-      customer_cnt[pos] = n;
+      cin >> x >> name >> n;
+      pos = (x - t) % L;
+      if(pos < 0) pos += L;
       people_cnt++;
-      check_belt_at(pos);
-      if(DEBUG) print_belt();
-    }else if(type == 300){
+
+      if(people.find(name) == people.end()){
+        info sth;
+        people.insert({name, sth});
+      }
+
+      (people.find(name)->second).pos = pos;
+      (people.find(name)->second).time = t;
+      (people.find(name)->second).needs = n;
+    }
+    else if(type == 300){
+      eat_food(t);
       cout << people_cnt << ' ' << food_cnt << '\n';
     }
-
-    tick = t;
   }
 
   return 0;
