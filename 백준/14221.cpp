@@ -19,13 +19,13 @@ vector<int> dijkstra(int src) {
 
     // cout << "src: " << src << endl;
 
-    priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int,int> > > pq;
-    pq.push(make_pair(0, src));
+    priority_queue<pair<int, int>, vector<pair<int, int> >, greater<pair<int,int> > > which_combo;
+    which_combo.push(make_pair(0, src));
 
-    while (!pq.empty()) {
-        int cost = pq.top().first;
-        int here = pq.top().second;
-        pq.pop();
+    while (!which_combo.empty()) {
+        int cost = which_combo.top().first;
+        int here = which_combo.top().second;
+        which_combo.pop();
 
         // 이미 계산된 거리가 더 최적이면 스킵
         if (dist[here] < cost) continue;
@@ -39,7 +39,7 @@ vector<int> dijkstra(int src) {
             // 현재 계산된 새로운 거리가 더 가까우면 거리를 갱신하고 큐에 추가
             if (nextDist < dist[there]) {
                 dist[there] = nextDist;
-                pq.push(make_pair(nextDist, there));
+                which_combo.push(make_pair(nextDist, there));
             }
         }
     }

@@ -1,5 +1,6 @@
 {
   "files.associations": {
+    "*.css": "tailwindcss",
     "iostream": "cpp",
     "ostream": "cpp",
     "ios": "cpp",
@@ -80,7 +81,8 @@
     "xiosbase": "cpp",
     "xlocale": "cpp",
     "xlocnum": "cpp",
-    "xmemory": "cpp"
+    "xmemory": "cpp",
+    "unordered_set": "cpp"
   },
   "editor.formatOnSave": true
 }

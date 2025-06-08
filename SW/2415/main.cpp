@@ -64,7 +64,7 @@ int main() {
 	freopen("sample_input.txt", "r", stdin);
 
 	scanf("%d %d", &T, &MARK);
-	for (int tc = 1; tc <= 1; tc++) {
+	for (int tc = 1; tc <= T; tc++) {
 		int score = run() ? MARK : 0;
 		printf("#%d %d\n", tc, score);
 	}
