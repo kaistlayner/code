@@ -1,0 +1,43 @@
+42
+init
+rank 1
+insert rim 15000
+delete run
+rank 2
+insert bug 3000
+delete james
+insert bow 12000
+rank 12
+rank 18
+insert teddy 10000
+insert sam 8000
+delete teddy
+insert bow 4000
+delete david
+insert june 2000
+rank 12
+rank 2
+insert rim 14000
+delete hat
+delete run
+insert dong 10000
+sum 16000
+sum 20000
+insert kin 4000
+insert david 13000
+insert bow 7000
+insert cup 13000
+delete lip
+init
+sum 18000
+sum 15000
+insert bow 9000
+rank 18
+insert jin 10000
+insert david 15000
+insert run 18000
+insert sun 19000
+delete bow
+sum 1000
+delete fly
+insert bow 6000
