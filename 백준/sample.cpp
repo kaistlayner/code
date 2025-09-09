@@ -4,12 +4,14 @@
 
 using namespace std;
 
-int main() {
+int main()
+{
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
   cout.tie(nullptr);
 
-  if (DEBUG) {
+  if (DEBUG)
+  {
     freopen("output.txt", "w", stdout);
     freopen("input.txt", "r", stdin);
   }
@@ -18,7 +20,9 @@ int main() {
 
   cin >> N;
 
-  for (int i = 1; i <= N; ++i) {
+  for (int i = 1; i <= N; ++i)
+  {
+    cout << i << '\n';
   }
 
   return 0;
