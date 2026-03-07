@@ -1,12 +1,18 @@
 #include<iostream>
 #include<vector>
+#include<string>
+#include<algorithm>
 
 using namespace std;
+
 #define ALPHA 26
 
-int graph[ALPHA][ALPHA];
-vector<int> childs[ALPHA], parents[ALPHA];
-int ans, saved_value[ALPHA], visited[ALPHA];
+vector<int> childs[ALPHA];
+vector<string> edge_str[ALPHA];
+
+int ans;
+int saved_value[ALPHA];
+int visited[ALPHA];
 
 void reset_vars() {
     ans = 0;
@@ -15,71 +21,84 @@ void reset_vars() {
         visited[i] = 0;
         saved_value[i] = 0;
         childs[i].clear();
-        parents[i].clear();
-
-        for (int j = 0; j < ALPHA; j++) {
-            graph[i][j] = 0;
-        }
+        edge_str[i].clear();
     }
 }
 
-int check_conditions(int n){ 
-  if(visited[n] == 1) return -1;
-  int length = saved_value[n];
+bool suffix_ok(string a, string b){
+    if(a.size() < b.size()) swap(a,b);
+    return a.substr(a.size()-b.size()) == b;
+}
 
-  if(visited[n] == 0){
+int check_conditions(int n){
+    if(visited[n] == 1) return -1;
+
+    if(visited[n] == 2) return saved_value[n];
+
     visited[n] = 1;
-    for(int child : childs[n]){
-      int child_length = check_conditions(child);
-      if(child_length == -1) return -1;
 
-      length = max(length, child_length + graph[child][n]);
-      //cout << '\t' << (char)('A' + n) << " <- " << (char)('A' + child) << '(' << saved_value[child] << ')' << ": " << graph[child][n] << '\n';
+    int length = 0;
+    string base = "";
+
+    for(int i=0;i<childs[n].size();i++){
+        int child = childs[n][i];
+        string s = edge_str[n][i];
+
+        int child_len = check_conditions(child);
+        if(child_len == -1) return -1;
+
+        if(base == "") base = s;
+        else if(!suffix_ok(base, s)) return -1;
+
+        length = max(length, child_len + (int)s.size());
+
+        if(s.size() > base.size()) base = s;
     }
-    ans += length;
-    visited[n] = 2; saved_value[n] = length;
-    //cout << (char)('A' + n) << ": " << length << '\n';
-  }
 
-  return length;
+    visited[n] = 2;
+    saved_value[n] = length;
+    ans += length;
+
+    return length;
 }
 
-int main(int argc, char** argv)
+int main()
 {
-	freopen("input.txt", "r", stdin);
-	int T; cin >> T;
+    freopen("input.txt", "r", stdin);
 
-	for(int test_case = 1; test_case <= T; ++test_case)
-	{
-    int equation_cnt; cin >> equation_cnt;
-    reset_vars();
+    int T; 
+    cin >> T;
 
-    while(equation_cnt--){
-      char A, B; string eq, plus, C;
-      cin >> A >> eq >> B >> plus >> C;
-      C = C.substr(1, C.size() - 2);
+    while(T--){
+        reset_vars();
 
-      int a = A - 'A', b = B - 'A';
-      int cost = C.size();
+        int equation_cnt;
+        cin >> equation_cnt;
 
-      graph[a][b] = -cost;
-      graph[b][a] = cost;
-      childs[a].push_back(b);
-      parents[b].push_back(a);
+        while(equation_cnt--){
+            char A, B;
+            string eq, plus, C;
+
+            cin >> A >> eq >> B >> plus >> C;
+
+            C = C.substr(1, C.size()-2);
+
+            int a = A-'A';
+            int b = B-'A';
+
+            childs[a].push_back(b);
+            edge_str[a].push_back(C);
+        }
+
+        for(int i=0;i<ALPHA;i++){
+            if(visited[i]) continue;
+
+            if(check_conditions(i) == -1){
+                ans = -1;
+                break;
+            }
+        }
+
+        cout << ans << '\n';
     }
-
-    for(int n = 0; n < ALPHA; ++n){
-      if(visited[n]) continue;
-
-      int length = check_conditions(n);
-      if(length == -1){
-        ans = -1;
-        break;
-      }
-    }
-
-    cout << ans << '\n';
-	}
-
-	return 0;
 }
