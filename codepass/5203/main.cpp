@@ -1,144 +1,154 @@
 #include <bits/stdc++.h>
-#define DEBUG true
-
 using namespace std;
 using pii = pair<int, int>;
+
+// 사전순 최소를 만들기 위해 "인덱스 기준 정렬"
+// idx가 작은 후보부터 먼저 시도
+struct CmpIdx
+{
+    bool operator()(const pii &a, const pii &b) const
+    {
+        return a.first < b.first;
+    }
+};
 
 int main()
 {
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
-    cout.tie(nullptr);
-
-    if (DEBUG)
-    {
-        freopen("input.txt", "r", stdin);
-        // freopen("output.txt", "w", stdout);
-    }
+    freopen("input.txt", "r", stdin);
 
     int N;
     cin >> N;
-    set<int> store_type;
-    map<int, queue<int>> store_idx; // type -> idxs
 
+    // num -> 해당 숫자가 등장한 인덱스들
+    map<int, vector<int>> pos;
+
+    // num -> 남은 개수
+    map<int, int> cnt;
+
+    // num -> 현재까지 몇 개 사용했는지 (pos에서 포인터 역할)
+    map<int, int> used;
+
+    // 입력 처리
     for (int i = 1; i <= N; ++i)
     {
-        int type;
-        cin >> type;
-        store_type.insert(type);
-        store_idx[type].push(i);
+        int x;
+        cin >> x;
+        pos[x].push_back(i);
+        cnt[x]++;
     }
 
-    // 일단 앞에서 부터
-    auto iter = store_type.begin();
+    // 사전순 최소 후보 선택용
+    // 각 숫자별 "현재 사용 가능한 가장 앞 인덱스"를 저장
+    set<pii, CmpIdx> byIdx;
 
-    vector<pii> ans;
-    while (iter != store_type.end())
+    // 최대 빈도 추적용
+    // (-cnt, num) 형태로 넣어서 begin()이 최대 cnt
+    set<pii> byCnt;
+
+    // 초기 상태 세팅
+    for (auto &[num, v] : pos)
     {
-        int cur_type = *iter;
-
-        // save answer
-        int cur_idx = store_idx[cur_type].front();
-        store_idx[cur_type].pop();
-        ans.push_back({cur_type, cur_idx});
-
-        // move iterator
-        auto next_iter = iter;
-        if (iter != store_type.begin())
-        {
-            --next_iter;
-        }
-        else
-        {
-            ++next_iter;
-        }
-
-        // erase empty type
-        if (store_idx[cur_type].empty())
-        {
-            store_type.erase(iter);
-        }
-
-        iter = next_iter;
+        byIdx.insert({v[0], num});
+        byCnt.insert({-cnt[num], num});
+        used[num] = 0;
     }
 
-    if (ans.size() < N)
+    // 현재 num의 "다음에 사용할 인덱스"
+    auto cur_idx = [&](int num)
     {
-        // ans 맨 뒤에서 부터 elem 넣기
-        auto target = *(store_type.begin());
-        // cout << "target: " << target << '\n';
-        stack<pii> ans2;
-        priority_queue<int> inserted_target_idx;
-        vector<int> visited(N + 1);
+        return pos[num][used[num]];
+    };
 
-        for (auto iter = ans.rbegin(); iter != ans.rend(); iter++)
+    vector<int> ans;
+    int last = -1;  // 직전에 사용한 숫자
+    int remain = N; // 남은 총 개수
+
+    for (int step = 0; step < N; ++step)
+    {
+        bool picked = false;
+
+        // 현재 최대 빈도
+        int mx = -byCnt.begin()->first;
+
+        // 두 번째 최대 빈도
+        int second_mx = 0;
+        if (byCnt.size() >= 2)
         {
-            ans2.push(*iter);
-            if (store_idx[target].empty())
+            auto it = byCnt.begin();
+            ++it;
+            second_mx = -it->first;
+        }
+
+        // 사전순 최소를 위해 idx 작은 순으로 후보 탐색
+        for (auto it = byIdx.begin(); it != byIdx.end(); ++it)
+        {
+            int idx = it->first;
+            int num = it->second;
+
+            // 인접 중복 방지
+            if (num == last)
+                continue;
+
+            // === feasibility check (미리 판단) ===
+            // num을 하나 썼을 때 새로운 최대 빈도 계산
+
+            int new_mx;
+
+            if (cnt[num] == mx)
+            {
+                // 최대 빈도 원소를 줄이는 경우
+                new_mx = max(cnt[num] - 1, second_mx);
+            }
+            else
+            {
+                // 최대 빈도 건드리지 않음
+                new_mx = mx;
+            }
+
+            // 인접 중복 없이 끝까지 배치 가능한 조건
+            // mx <= (remain - mx) + 1
+            if (new_mx > (remain - 1 - new_mx) + 1)
             {
                 continue;
             }
 
-            auto [last_type, last_idx] = *iter;
-            int front_type;
-            if (last_type == target)
+            // === 실제 반영 ===
+
+            // 현재 상태 제거
+            byIdx.erase(it);
+            byCnt.erase({-cnt[num], num});
+
+            // 사용 처리
+            cnt[num]--;
+            used[num]++;
+            remain--;
+
+            // 아직 남아있으면 다시 삽입
+            if (cnt[num] > 0)
             {
-                inserted_target_idx.push(-last_idx);
-                visited[last_idx] = true;
+                byIdx.insert({cur_idx(num), num});
+                byCnt.insert({-cnt[num], num});
             }
 
-            if (iter + 1 == ans.rend())
-            {
-                front_type = -1;
-            }
-            else
-            {
-                auto [front_t, front_idx] = *(iter + 1);
-                front_type = front_t;
-            }
-
-            // cout << "front: " << front_type << " last: " << last_type << '\n';
-            if (last_type != target && front_type != target)
-            {
-                int target_idx = store_idx[target].front();
-                store_idx[target].pop();
-                ans2.push({target, target_idx});
-                inserted_target_idx.push(-target_idx);
-                visited[target_idx] = true;
-                // cout << "inserted!\n";
-            }
+            // 결과 기록
+            ans.push_back(idx);
+            last = num;
+            picked = true;
+            break;
         }
 
-        if (ans2.size() < N)
+        // 어떤 후보도 못 고르면 불가능
+        if (!picked)
         {
-            cout << -1 << '\n';
+            cout << "-1\n";
             return 0;
         }
-
-        while (!ans2.empty())
-        {
-            auto [t, idx] = ans2.top();
-            if (!visited[idx])
-            {
-                cout << idx << ' ';
-            }
-            else
-            {
-                int front_idx = inserted_target_idx.top();
-                inserted_target_idx.pop();
-                cout << -front_idx << ' ';
-            }
-            ans2.pop();
-        }
-        cout << '\n';
-        return 0;
     }
 
-    for (auto [t, idx] : ans)
-    {
-        cout << idx << ' ';
-    }
+    // 최종 인덱스 출력
+    for (int x : ans)
+        cout << x << ' ';
     cout << '\n';
-
-    return 0;
 }
