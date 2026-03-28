@@ -9,6 +9,7 @@ using ll = long long;
 int N;
 vector<int> nums;
 vector<ll> range_sum;
+vector<ll> lazy;
 
 int get_left(int idx)
 {
@@ -20,12 +21,27 @@ int get_right(int idx)
     return 2 * idx + 2;
 }
 
+void push(int idx, int left, int right)
+{
+    if (lazy[idx] != 0)
+    {
+        range_sum[idx] += (right - left + 1) * lazy[idx];
+
+        if (left != right)
+        {
+            lazy[get_left(idx)] += lazy[idx];
+            lazy[get_right(idx)] += lazy[idx];
+        }
+
+        lazy[idx] = 0;
+    }
+}
+
 void init_range_sum(int idx, int left, int right)
 {
     if (left == right)
     {
         range_sum[idx] = nums[left];
-        // printf("[init] %d(%d ~ %d)'s sum: %d\n", idx, left, right, range_sum[idx]);
         return;
     }
 
@@ -37,23 +53,21 @@ void init_range_sum(int idx, int left, int right)
     init_range_sum(right_idx, mid + 1, right);
 
     range_sum[idx] = range_sum[left_idx] + range_sum[right_idx];
-    // printf("[init] %d(%d ~ %d)'s sum: %d\n", idx, left, right, range_sum[idx]);
 }
 
 void update_range_sum(int idx, int left, int right, int l, int r, int x)
 {
-    int left_max = max(left, l);
-    int right_min = min(right, r);
-    int cnt = right_min - left_max + 1;
-    if (cnt < 1)
+    push(idx, left, right);
+
+    if (right < l || r < left)
     {
         return;
     }
 
-    range_sum[idx] += x * cnt;
-    // printf("[update] %d(%d ~ %d)'s sum: %d / updated %d(%d ~ %d)\n", idx, left, right, range_sum[idx], x, l, r);
-    if (left == right)
+    if (l <= left && right <= r)
     {
+        lazy[idx] += x;
+        push(idx, left, right);
         return;
     }
 
@@ -63,37 +77,31 @@ void update_range_sum(int idx, int left, int right, int l, int r, int x)
 
     update_range_sum(left_idx, left, mid, l, r, x);
     update_range_sum(right_idx, mid + 1, right, l, r, x);
+
+    range_sum[idx] = range_sum[left_idx] + range_sum[right_idx];
 }
 
 ll retrieve_range_sum(int idx, int left, int right, int l, int r)
 {
-    // 검색 범위에 벗어남
+    push(idx, left, right);
+
     if (right < l || r < left)
     {
         return 0;
     }
-    // 범위에 속함
-    else if (l <= left && right <= r)
+
+    if (l <= left && right <= r)
     {
-        // printf("[retrieve] %d(%d ~ %d)'s sum: %d\n", idx, left, right, range_sum[idx]);
         return range_sum[idx];
     }
-    // 애매함
+
     int left_idx = get_left(idx);
     int right_idx = get_right(idx);
     int mid = (left + right) / 2;
 
-    return retrieve_range_sum(left_idx, left, mid, l, r) + retrieve_range_sum(right_idx, mid + 1, right, l, r);
+    return retrieve_range_sum(left_idx, left, mid, l, r) +
+           retrieve_range_sum(right_idx, mid + 1, right, l, r);
 }
-
-// void print_all()
-// {
-//     for (int i = 0; i < N; ++i)
-//     {
-//         cout << retrieve_range_sum(0, 0, N - 1, i, i) << ' ';
-//     }
-//     cout << '\n';
-// }
 
 int main()
 {
@@ -101,15 +109,10 @@ int main()
     cin.tie(nullptr);
     cout.tie(nullptr);
 
-    if (DEBUG)
-    {
-        freopen("input.txt", "r", stdin);
-        // freopen("output.txt", "w", stdout);
-    }
-
     cin >> ::N;
-    nums.resize(4 * N);
+    nums.resize(N);
     range_sum.resize(4 * N);
+    lazy.resize(4 * N);
 
     for (int i = 0; i < N; ++i)
     {
