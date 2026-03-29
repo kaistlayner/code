@@ -40,7 +40,7 @@ void update(int i, int L, int R, int l, int r, pii &x) {
     if (!visited[x.second] && cnt[i] <= rain) {
       visited[x.second] = 1;
       candidates.erase(x.second);
-      //   printf("\t%d(%d~%d) erased!\n", x.second, l, r);
+      // printf("\t%d(%d~%d) erased!\n", x.second, l, r);
     }
     // printf("\t%d(%d~%d) cnt become %d\n", i, L, R, cnt[i]);
     return;
@@ -52,6 +52,10 @@ void update(int i, int L, int R, int l, int r, pii &x) {
   cnt[i] = min(cnt[get_left(i)], cnt[get_right(i)]);
 }
 
+struct Plate {
+  int n, x, y_min, y_max;
+};
+
 int main() {
   ios::sync_with_stdio(false);
   cin.tie(nullptr);
@@ -62,12 +66,13 @@ int main() {
   int N, n_max = 0;
   cin >> rain >> N;
 
-  priority_queue<pii> pq;
-  map<int, pii> info;
+  vector<Plate> plates;
+  vector<int> ys;
 
   for (int i = 0; i < N; ++i) {
     int n, x, y_min, y_max;
     cin >> n >> x >> y_min >> y_max;
+
     candidates.insert(n);
 
     if (y_min < L) {
@@ -77,24 +82,43 @@ int main() {
       R = y_max;
     }
     if (n > n_max) {
-      n_max = x;
+      n_max = n;
     }
 
-    info[n] = {y_min, y_max - 1};
-    pq.push({-x, n});
+    plates.push_back({n, x, y_min, y_max});
+
+    ys.push_back(y_min);
+    ys.push_back(y_max);
   }
 
-  cnt.resize((R - L + 1) * 4);
-  lazy.resize((R - L + 1) * 4);
+  sort(ys.begin(), ys.end());
+  ys.erase(unique(ys.begin(), ys.end()), ys.end());
+
+  int segN = (int)ys.size();
+
+  auto get_y = [&](int y) {
+    return (int)(lower_bound(ys.begin(), ys.end(), y) - ys.begin());
+  };
+
+  sort(plates.begin(), plates.end(), [](const Plate &a, const Plate &b) {
+    if (a.x != b.x)
+      return a.x < b.x;
+    return a.n < b.n;
+  });
+
+  cnt.resize(segN * 4);
+  lazy.resize(segN * 4);
   visited.resize(n_max + 1);
 
-  while (!pq.empty()) {
-    auto [x, n] = pq.top();
-    pq.pop();
-    auto [y_min, y_max] = info[n];
-    pii elem = {-x, n};
-    // printf("working on %d(%d~%d)\n", elem.second, y_min, y_max);
-    update(0, L, R, y_min, y_max, elem);
+  for (auto &plate : plates) {
+    int l = get_y(plate.y_min);
+    int r = get_y(plate.y_max) - 1;
+    pii elem = {plate.x, plate.n};
+
+    // printf("working on %d(%d~%d) -> compressed (%d~%d)\n",
+    //        plate.n, plate.y_min, plate.y_max, l, r);
+
+    update(0, 0, segN - 1, l, r, elem);
   }
 
   for (int i : candidates) {
