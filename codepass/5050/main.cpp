@@ -7,7 +7,7 @@ using pii = pair<int, int>;
 int rain, L = Y_MAX, R = -1;
 vector<int> cnt, lazy;
 set<int> candidates;
-map<int, bool> visited;
+vector<bool> visited;
 
 int get_left(int i) { return 2 * i + 1; }
 int get_right(int i) { return 2 * i + 2; }
@@ -59,7 +59,7 @@ int main() {
 
   freopen("input.txt", "r", stdin);
 
-  int N;
+  int N, n_max = 0;
   cin >> rain >> N;
 
   priority_queue<pii> pq;
@@ -76,6 +76,9 @@ int main() {
     if (R < y_max) {
       R = y_max;
     }
+    if (n > n_max) {
+      n_max = x;
+    }
 
     info[n] = {y_min, y_max - 1};
     pq.push({-x, n});
@@ -83,6 +86,7 @@ int main() {
 
   cnt.resize((R - L + 1) * 4);
   lazy.resize((R - L + 1) * 4);
+  visited.resize(n_max + 1);
 
   while (!pq.empty()) {
     auto [x, n] = pq.top();
