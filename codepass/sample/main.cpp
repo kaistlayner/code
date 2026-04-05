@@ -1,29 +1,19 @@
 #include <bits/stdc++.h>
-
-#define DEBUG true
-
 using namespace std;
 using pii = pair<int, int>;
 
-int main()
-{
-    ios::sync_with_stdio(false);
-    cin.tie(nullptr);
-    cout.tie(nullptr);
+int main() {
+  ios::sync_with_stdio(false);
+  cin.tie(nullptr);
+  cout.tie(nullptr);
 
-    if (DEBUG)
-    {
-        freopen("input.txt", "r", stdin);
-        // freopen("output.txt", "w", stdout);
-    }
+  freopen("input.txt", "r", stdin);
 
-    int N;
+  int N;
+  cin >> N;
 
-    cin >> N;
+  for (int i = 1; i <= N; ++i) {
+  }
 
-    for (int i = 1; i <= N; ++i)
-    {
-    }
-
-    return 0;
+  return 0;
 }
