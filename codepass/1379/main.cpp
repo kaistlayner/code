@@ -21,8 +21,9 @@ void dfs(int node, int parent, bool isRoot, int level) {
       if (!isRoot && low[child] >= level) {
         ans.insert(node);
       }
-    }
-    low[node] = min(low[node], low[child]);
+      low[node] = min(low[node], low[child]);
+    } else
+      low[node] = min(low[node], levels[child]);
   }
 
   if (isRoot && cnt > 1) {
